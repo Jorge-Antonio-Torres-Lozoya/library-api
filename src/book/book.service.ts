@@ -6,7 +6,7 @@ import {
 import { CreateBookDto } from './dto/create-book.dto';
 import { Book } from './book.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { AuthorService } from '../author/author.service';
 
 @Injectable()
@@ -29,6 +29,52 @@ export class BookService {
       throw new NotFoundException(`book with ID ${bookId} not found`);
     }
     return book;
+  }
+
+  async filterBooksByTitle(title: string): Promise<Book[]> {
+    const books = await this.repo.find({
+      where: { title: Like(`%${title}%`) },
+      relations: { author: true },
+    });
+    if (books.length === 0) {
+      throw new NotFoundException(`No books found with title ${title}`);
+    }
+    return books;
+  }
+
+  async filterBooksByGenre(genre: string): Promise<Book[]> {
+    const books = await this.repo.find({
+      where: { genre },
+      relations: { author: true },
+    });
+    if (books.length === 0) {
+      throw new NotFoundException(`No books found with genre ${genre}`);
+    }
+    return books;
+  }
+
+  async filterBooksByAuthor(author: string): Promise<Book[]> {
+    const books = await this.repo.find({
+      where: { author: { name: Like(`%${author}%`) } },
+      relations: { author: true },
+    });
+    if (books.length === 0) {
+      throw new NotFoundException(`No books found with author ${author}`);
+    }
+    return books;
+  }
+
+  async filterBooksByPublishedYear(publishedYear: string): Promise<Book[]> {
+    const books = await this.repo.find({
+      where: { publishedYear: parseInt(publishedYear) },
+      relations: { author: true },
+    });
+    if (books.length === 0) {
+      throw new NotFoundException(
+        `No books found with published year ${publishedYear}`,
+      );
+    }
+    return books;
   }
 
   async create(createDto: CreateBookDto): Promise<Book> {
