@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DBOptions } from '../db.datasourceoptions';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthorModule } from './author/author.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         return dbOptions;
       },
     }),
+    AuthorModule,
   ],
   controllers: [AppController],
   providers: [AppService],
