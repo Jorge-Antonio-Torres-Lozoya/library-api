@@ -6,6 +6,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DBOptions } from '../db.datasourceoptions';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthorModule } from './author/author.module';
+import { BookModule } from './book/book.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AuthorModule } from './author/author.module';
       },
     }),
     AuthorModule,
+    BookModule,
   ],
   controllers: [AppController],
   providers: [AppService],

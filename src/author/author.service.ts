@@ -1,9 +1,12 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Author } from './author.entity'; // Asegúrate de importar tu entidad
+import { Author } from './author.entity';
 import { CreateAuthorDto } from './dto/create-author.dto';
-
 
 @Injectable()
 export class AuthorService {
@@ -14,6 +17,9 @@ export class AuthorService {
   }
 
   async getById(authorId: number): Promise<Author> {
+    if (!authorId) {
+      throw new BadRequestException('Author ID is required');
+    }
     const author = await this.repo.findOne({ where: { authorId } });
     if (!author) {
       throw new NotFoundException(`Author with ID ${authorId} not found`);
@@ -30,14 +36,31 @@ export class AuthorService {
     }
   }
 
-  async update(authorId: number, attrs: Partial<CreateAuthorDto>): Promise<Author> {
-    const author = await this.getById(authorId);
-    Object.assign(author, attrs);
-    return await this.repo.save(author);
+  async update(
+    authorId: number,
+    attrs: Partial<CreateAuthorDto>,
+  ): Promise<Author> {
+    try {
+      const author = await this.getById(authorId);
+      if (!author) {
+        throw new NotFoundException(`Author with ID ${authorId} not found`);
+      }
+      Object.assign(author, attrs);
+      return await this.repo.save(author);
+    } catch (error) {
+      throw new BadRequestException('Error updating author: ' + error.message);
+    }
   }
 
   async delete(authorId: number): Promise<Author> {
-    const author = await this.getById(authorId);
-    return await this.repo.remove(author);
+    try {
+      const author = await this.getById(authorId);
+      if (!author) {
+        throw new NotFoundException(`Author with ID ${authorId} not found`);
+      }
+      return await this.repo.remove(author);
+    } catch (error) {
+      throw new BadRequestException('Error deleting author: ' + error.message);
+    }
   }
 }
